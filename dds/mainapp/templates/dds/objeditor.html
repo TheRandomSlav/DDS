@@ -1,0 +1,15 @@
+{% extends 'dds/origin.html' %}
+
+{% block title %}Редактирование объекта "{{ object.name }}"{% endblock %}
+
+{% block content %}
+    <h2>Редактирование объекта "{{ object.name }}"</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+    </form>
+
+    <a href="{% url 'admin_panel' %}" class="btn btn-secondary">Назад к панели управления</a>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'dds/origin.html' %}
+
+{% block title %}Подтверждение удаления записи{% endblock %}
+
+{% block content %}
+    <h2>Вы действительно хотите удалить запись?</h2>
+    <p>Дата создания: {{ object.created_at }}</p>
+    <p>Сумма: {{ object.amount }} ₽</p>
+    <p>Комментарий: {{ object.comment }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Да, удалить</button>
+        <a href="{% url 'main_page' %}" class="btn btn-secondary">Вернуться назад</a>
+    </form>
+{% endblock %}

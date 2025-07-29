@@ -1,0 +1,133 @@
+{% extends 'dds/origin.html' %}
+
+{% block title %}Таблица данных{% endblock %}
+
+{% block content %}
+
+<!-- ФОРМА ФИЛЬТРОВ -->
+<form action="" method="GET">
+    <div style="display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center;">
+        <!-- Первая строка -->
+        <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+            <label for="status">Статус:</label>
+            <select name="status" id="status">
+                <option value="">Все</option>
+                {% for s in statuses %}
+                    <option value="{{ s.name }}" {% if filter_params.status == s.name %}selected{% endif %}>
+                        {{ s.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="type">Тип:</label>
+            <select name="type" id="type">
+                <option value="">Все</option>
+                {% for t in types %}
+                    <option value="{{ t.name }}" {% if filter_params.type == t.name %}selected{% endif %}>
+                        {{ t.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="category">Категория:</label>
+            <select name="category" id="category">
+                <option value="">Все</option>
+                {% for c in categories %}
+                    <option value="{{ c.name }}" {% if filter_params.category == c.name %}selected{% endif %}>
+                        {{ c.name }}
+                    </option>
+                {% endfor %}
+            </select>
+
+            <label for="subcategory">Подкатегория:</label>
+            <select name="subcategory" id="subcategory">
+                <option value="">Все</option>
+                {% for sc in subcategories %}
+                    <option value="{{ sc.name }}" {% if filter_params.subcategory == sc.name %}selected{% endif %}>
+                        {{ sc.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Вторая строка -->
+        <div style="flex: 1; display: flex; gap: 1rem; align-items: center;">
+            <label for="min_amount">Мин. сумма:</label>
+            <input type="number" step="any" name="min_amount" value="{{ filter_params.min_amount|default_if_none:"" }}" />
+
+            <label for="max_amount">Макс. сумма:</label>
+            <input type="number" step="any" name="max_amount" value="{{ filter_params.max_amount|default_if_none:"" }}" />
+
+            <label for="start_date">Начало периода:</label>
+            <input type="date" name="start_date" value="{{ filter_params.start_date|default_if_none:"" }}" />
+
+            <label for="end_date">Окончание периода:</label>
+            <input type="date" name="end_date" value="{{ filter_params.end_date|default_if_none:"" }}" />
+
+            <label for="comment">Комментарий:</label>
+            <input type="text" name="comment" value="{{ filter_params.comment|default_if_none:"" }}" />
+
+            <button type="submit" class="btn btn-primary">Применить фильтры</button>
+        </div>
+    </div>
+</form>
+
+<!-- ТАБЛИЦА ЗАПИСЕЙ -->
+<center>
+    <table class="table table-striped table-hover">
+        <thead>
+            <tr>
+                <th scope="col">Дата создания</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Тип</th>
+                <th scope="col">Категория</th>
+                <th scope="col">Подкатегория</th>
+                <th scope="col">Сумма</th>
+                <th scope="col">Комментарий</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.created_at|date:"Y-m-d H:i:s" }}</td>
+                    <td>{{ record.status }}</td>
+                    <td>{{ record.type }}</td>
+                    <td>{{ record.category }}</td>
+                    <td>{{ record.subcategory }}</td>
+                    <td>{{ record.amount }} ₽</td>
+                    <td>{{ record.comment }}</td>
+                    <td>
+                        <a href="{% url 'edit_record' record.id %}" class="btn btn-warning btn-sm">Редактировать</a>
+                        <a href="{% url 'delete_record' record.id %}" class="btn btn-danger btn-sm">Удалить</a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr><td colspan="8" class="text-center">Нет записей.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ПАГИНАТОР -->
+    <nav aria-label="Page navigation example">
+      <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a></li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                  <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                  <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+              {% endif %}
+          {% endfor %}
+
+          {% if page_obj.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a></li>
+          {% endif %}
+      </ul>
+    </nav>
+</center>
+
+{% endblock %}

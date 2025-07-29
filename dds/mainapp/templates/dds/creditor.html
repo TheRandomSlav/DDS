@@ -1,0 +1,42 @@
+{% extends 'dds\origin.html' %}
+ 
+{% block title %}{% if object %}Редактирование записи{% else %}Создание новой записи{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if object %}Редактирование записи{% else %}Создание новой записи{% endif %}</h2>
+
+    <form method="post" id="record-form">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">{% if object %}Сохранить изменения{% else %}Создать запись{% endif %}</button>
+        <a href="{% url 'main_page' %}" class="btn btn-secondary">Отмена</a>
+    </form>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#id_type').change(function () {
+                var typeId = $(this).val();  // Получаем выбранный тип
+
+                // Отправляем AJAX-запрос для получения категорий по данному типу
+                $.ajax({
+                    url: '{% url "ajax_load_categories" %}',  // URL для получения категорий
+                    data: {
+                        'type': typeId
+                    },
+                    success: function (data) {
+                        // Очистка существующих категорий
+                        $('#id_category option').remove();
+
+                        // Добавляем новые категории
+                        $.each(data, function(index, item){
+                            $('#id_category').append($("<option></option>")
+                               .attr("value", item.id)
+                               .text(item.name));
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
